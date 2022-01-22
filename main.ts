@@ -28,6 +28,19 @@ function dogenerujjedzonko () {
             `, SpriteKind.Food)
         zarelko.setPosition(randint(8, maxX - 8), randint(8, maxY - 8))
         zarelko.z = 1
+    } else if (Math.percentChance(50)) {
+        zarelko = sprites.create(img`
+            . . . . 7 7 . . 
+            . . . 7 . . . . 
+            . . 5 5 5 . . . 
+            . . 5 5 5 . . . 
+            . . 5 5 5 . . . 
+            . . 5 5 5 . . . 
+            . . 5 5 5 . . . 
+            . . . . . . . . 
+            `, SpriteKind.Food)
+        zarelko.setPosition(randint(8, maxX - 8), randint(8, maxY - 8))
+        zarelko.z = 3
     } else {
         zarelko = sprites.create(img`
             . . . . 7 7 . . 
@@ -68,6 +81,12 @@ sprites.onOverlap(SpriteKind.glowa, SpriteKind.Food, function (sprite, otherSpri
         rosnij = 1
     } else if (otherSprite.z == 2) {
         rosnij = -1
+    } else if (otherSprite.z == 3) {
+        if (sprites.allOfKind(SpriteKind.Enemy).length > 0) {
+            sprites.allOfKind(SpriteKind.Enemy)._pickRandom().destroy()
+        }
+    } else {
+    	
     }
     otherSprite.destroy(effects.spray, 500)
     dogenerujjedzonko()
