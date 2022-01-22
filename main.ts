@@ -6,37 +6,8 @@ controller.up.onEvent(ControllerButtonEvent.Pressed, function () {
     dirx = 0
 })
 controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
-    if (diry == -1) {
-        diry = 0
-        dirx = 1
-    } else if (diry == 1) {
-        diry = 0
-        dirx = -1
-    } else if (dirx == 1) {
-        diry = 1
-        dirx = 0
-    } else if (dirx == -1) {
-        diry = -1
-        dirx = 0
-    } else {
-    	
-    }
-})
-controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
-    if (diry == -1) {
-        diry = 0
-        dirx = -1
-    } else if (diry == 1) {
-        diry = 0
-        dirx = 1
-    } else if (dirx == 1) {
-        diry = -1
-        dirx = 0
-    } else if (dirx == -1) {
-        diry = 1
-        dirx = 0
-    } else {
-    	
+    if (sprites.allOfKind(SpriteKind.Enemy).length > 0) {
+        sprites.allOfKind(SpriteKind.Enemy)._pickRandom().destroy()
     }
 })
 controller.left.onEvent(ControllerButtonEvent.Pressed, function () {
@@ -44,17 +15,33 @@ controller.left.onEvent(ControllerButtonEvent.Pressed, function () {
     dirx = -1
 })
 function dogenerujjedzonko () {
-    zarelko = sprites.create(img`
-        . . . . 7 7 . . 
-        . . . 7 . . . . 
-        . . 2 2 2 . . . 
-        . 2 2 2 2 2 . . 
-        . 2 2 2 2 2 . . 
-        . 2 2 2 2 2 . . 
-        . . 2 2 2 . . . 
-        . . . . . . . . 
-        `, SpriteKind.Food)
-    zarelko.setPosition(randint(8, maxX - 8), randint(8, maxY - 8))
+    if (Math.percentChance(50)) {
+        zarelko = sprites.create(img`
+            . . . . 7 7 . . 
+            . . . 7 . . . . 
+            . . 2 2 2 . . . 
+            . 2 2 2 2 2 . . 
+            . 2 2 2 2 2 . . 
+            . 2 2 2 2 2 . . 
+            . . 2 2 2 . . . 
+            . . . . . . . . 
+            `, SpriteKind.Food)
+        zarelko.setPosition(randint(8, maxX - 8), randint(8, maxY - 8))
+        zarelko.z = 1
+    } else {
+        zarelko = sprites.create(img`
+            . . . . 7 7 . . 
+            . . . 7 . . . . 
+            . . a a a . . . 
+            . . a a a . . . 
+            . . a a a . . . 
+            . . a a a . . . 
+            . . a a a . . . 
+            . . . . . . . . 
+            `, SpriteKind.Food)
+        zarelko.setPosition(randint(8, maxX - 8), randint(8, maxY - 8))
+        zarelko.z = 2
+    }
 }
 sprites.onOverlap(SpriteKind.glowa, SpriteKind.Enemy, function (sprite, otherSprite) {
     game.over(false)
@@ -68,21 +55,60 @@ controller.right.onEvent(ControllerButtonEvent.Pressed, function () {
     diry = 0
     dirx = 1
 })
+controller.A.onEvent(ControllerButtonEvent.Released, function () {
+    dogenerujprzszkadzajke()
+})
 controller.down.onEvent(ControllerButtonEvent.Pressed, function () {
     diry = 1
     dirx = 0
 })
 sprites.onOverlap(SpriteKind.glowa, SpriteKind.Food, function (sprite, otherSprite) {
     music.pewPew.play()
+    if (otherSprite.z == 1) {
+        rosnij = 1
+    } else if (otherSprite.z == 2) {
+        rosnij = -1
+    }
     otherSprite.destroy(effects.spray, 500)
     dogenerujjedzonko()
     info.changeScoreBy(1)
-    rosnij = 1
 })
-let kamyk_spr: Sprite = null
-let glaz_spr: Sprite = null
+function dogenerujprzszkadzajke () {
+    if (Math.percentChance(50)) {
+        glaz_spr = sprites.create(img`
+            . . . . . . . . 
+            . d d d d d d . 
+            . d e f c e d . 
+            . d c e e c d . 
+            . d f e c f d . 
+            . d e f e c d . 
+            . d d d d d d . 
+            . . . . . . . . 
+            `, SpriteKind.Enemy)
+        glaz_spr.setPosition(randint(8, maxX - 8), randint(8, maxY - 8))
+        glaz_spr.vx = randint(5, 20)
+        glaz_spr.vy = randint(5, 20)
+        glaz_spr.setBounceOnWall(true)
+        glaz_spr.setStayInScreen(true)
+    } else {
+        kamyk_spr = sprites.create(img`
+            . . . . . . . . 
+            . . . . . . . . 
+            . . e f e e . . 
+            . . e e e e . . 
+            . . f e e f . . 
+            . . e f e e . . 
+            . . . . . . . . 
+            . . . . . . . . 
+            `, SpriteKind.Enemy)
+        kamyk_spr.setPosition(randint(8, maxX - 8), randint(8, maxY - 8))
+        kamyk_spr.lifespan = 30000
+    }
+}
 let staryY = 0
 let staryX = 0
+let kamyk_spr: Sprite = null
+let glaz_spr: Sprite = null
 let zarelko: Sprite = null
 let tablica_cialo: Sprite[] = []
 let cialo_spr: Sprite = null
@@ -117,6 +143,13 @@ game.onUpdateInterval(500, function () {
     staryY = glowa_spr.y
     if (rosnij == 0) {
         tablica_cialo.insertAt(0, tablica_cialo.pop())
+    } else if (rosnij == -1) {
+        tablica_cialo.insertAt(0, tablica_cialo.pop())
+        if (tablica_cialo.length > 3) {
+            cialo_spr = tablica_cialo.pop()
+            cialo_spr.destroy()
+        }
+        rosnij = 0
     } else {
         cialo_spr = sprites.create(cialko, SpriteKind.Player)
         tablica_cialo.insertAt(0, cialo_spr)
@@ -140,35 +173,6 @@ game.onUpdateInterval(500, function () {
     przeszkadzajka += -1
     if (przeszkadzajka <= 0) {
         przeszkadzajka = randint(20, 100)
-        if (Math.percentChance(50)) {
-            glaz_spr = sprites.create(img`
-                . . . . . . . . 
-                . d d d d d d . 
-                . d e f c e d . 
-                . d c e e c d . 
-                . d f e c f d . 
-                . d e f e c d . 
-                . d d d d d d . 
-                . . . . . . . . 
-                `, SpriteKind.Enemy)
-            glaz_spr.setPosition(randint(8, maxX - 8), randint(8, maxY - 8))
-            glaz_spr.vx = 10
-            glaz_spr.vy = 10
-            glaz_spr.setBounceOnWall(true)
-            glaz_spr.setStayInScreen(true)
-        } else {
-            kamyk_spr = sprites.create(img`
-                . . . . . . . . 
-                . . . . . . . . 
-                . . e f e e . . 
-                . . e e e e . . 
-                . . f e e f . . 
-                . . e f e e . . 
-                . . . . . . . . 
-                . . . . . . . . 
-                `, SpriteKind.Enemy)
-            kamyk_spr.setPosition(randint(8, maxX - 8), randint(8, maxY - 8))
-            kamyk_spr.lifespan = 30000
-        }
+        dogenerujprzszkadzajke()
     }
 })
